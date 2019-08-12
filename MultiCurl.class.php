@@ -173,7 +173,7 @@ class MultiCurl {
 				curl_reset($this->ch);
 				call_user_func_array($this->operation[$this->worker[$this->current_worker]["operation"]]["response"], array($response, $info, $errno, $this, &$data));
 				if (!is_null($this->worker[$this->current_worker]["callback"])) {
-					call_user_func_array($this->worker[$this->current_worker]["callback"], array(&$data));
+					call_user_func_array($this->worker[$this->current_worker]["callback"], array($this, &$data));
 				}
 				unset($this->worker[$this->current_worker]);
 
