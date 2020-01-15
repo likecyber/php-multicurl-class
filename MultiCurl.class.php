@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2018-2019
  * @license   https://creativecommons.org/licenses/by/4.0/ Attribution 4.0 International (CC BY 4.0)
  * @link      https://github.com/likecyber/php-multicurl-class
- * @version   1.2.0
+ * @version   1.2.1
 **/
 
 class MultiCurl {
@@ -104,14 +104,15 @@ class MultiCurl {
 		return true;
 	}
 
-	public function Autofill ($operation = null, $data = null) {
+	public function Autofill ($operation = null, $data = null, $callback = null) {
 		if ($this->max_worker === 0) return false;
 		if (is_null($operation)) {
 			$this->autofill = null;
 		} else {
 			$this->autofill = array(
 				"operation" => $operation,
-				"data" => $data
+				"data" => $data,
+				"callback" => $callback
 			);
 		}
 		return true;
