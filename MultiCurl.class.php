@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2018-2019
  * @license   https://creativecommons.org/licenses/by/4.0/ Attribution 4.0 International (CC BY 4.0)
  * @link      https://github.com/likecyber/php-multicurl-class
- * @version   1.2.1
+ * @version   1.3
 **/
 
 class MultiCurl {
@@ -89,11 +89,12 @@ class MultiCurl {
 		return true;
 	}
 
-	public function AddNextQueue ($operation, $data = null, $amount = 1) {
+	public function AddNextQueue ($operation, $data = null, $callback = null, $amount = 1) {
 		while ($amount-- > 0) {
 			$this->next_queue[] = array(
 				"operation" => $operation,
-				"data" => $data
+				"data" => $data,
+				"callback" => $callback
 			);
 		}
 		return true;
@@ -189,26 +190,26 @@ class MultiCurl {
 		$this->_perform_reset();
 	}
 
-	public function ResumeWorker ($operation, $data = null) {
+	public function ResumeWorker ($operation, $data = null, $callback = null) {
 		if (!$this->running) return false;
 		if (is_null($this->current_worker)) return false;
 		curl_setopt_array($this->ch, $this->curl_options);
 		call_user_func_array($this->operation[$operation]["init"], array(&$this->ch, &$data));
 		curl_multi_add_handle($this->mh, $this->ch);
-		$this->worker[(int) $this->ch] = array("operation" => $operation, "data" => $data);
+		$this->worker[(int) $this->ch] = array("operation" => $operation, "data" => $data, "callback" => $callback);
 		$this->operation[$operation]["active_worker"][(int) $this->ch] = true;
 		$this->status = curl_multi_exec($this->mh, $this->active);
 		$this->current_worker = null;
 		return true;
 	}
 
-	public function TempWorker ($operation, $data = null) {
+	public function TempWorker ($operation, $data = null, $callback = null) {
 		if (!$this->running) return false;
 		$ch = curl_init();
 		curl_setopt_array($ch, $this->curl_options);
 		call_user_func_array($this->operation[$operation]["init"], array(&$ch, &$data));
 		curl_multi_add_handle($this->mh, $ch);
-		$this->worker[(int) $ch] = array("operation" => $operation, "data" => $data);
+		$this->worker[(int) $ch] = array("operation" => $operation, "data" => $data, "callback" => $callback);
 		$this->operation[$operation]["active_worker"][(int) $ch] = true;
 		$this->status = curl_multi_exec($this->mh, $this->active);
 	}
@@ -220,7 +221,7 @@ class MultiCurl {
 		return true;
 	}
 
-	public function Abort () {
+	public function AbortAll () {
 		if (!$this->running) return false;
 		foreach ($this->operation as $operation => $operation_array) {
 			$this->AbortOperation($operation);
@@ -240,7 +241,7 @@ class MultiCurl {
 		return true;
 	}
 
-	public function Continue () {
+	public function ContinueAll () {
 		if (!$this->running) return false;
 		foreach ($this->operation as $operation => $operation_array) {
 			$this->ContinueOperation($operation);
