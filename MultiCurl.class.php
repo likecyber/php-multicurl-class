@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2018-2020
  * @license   https://creativecommons.org/licenses/by/4.0/ Attribution 4.0 International (CC BY 4.0)
  * @link      https://github.com/likecyber/php-multicurl-class
- * @version   1.3
+ * @version   1.3.1
 **/
 
 class MultiCurl {
@@ -171,11 +171,10 @@ class MultiCurl {
 				$data = $this->worker[$this->current_worker]["data"];
 
 				unset($this->operation[$this->worker[(int) $this->ch]["operation"]]["active_worker"][(int) $this->ch]);
-
 				curl_reset($this->ch);
 				call_user_func_array($this->operation[$this->worker[$this->current_worker]["operation"]]["response"], array($response, $info, $errno, $this, &$data));
-				if (!is_null($this->worker[$this->current_worker]["callback"])) {
-					call_user_func_array($this->worker[$this->current_worker]["callback"], array($this, &$data));
+				if (!is_null($this->worker[(int) $this->ch]["callback"])) {
+					call_user_func_array($this->worker[(int) $this->ch]["callback"], array($this, &$data));
 				}
 				unset($this->worker[$this->current_worker]);
 
@@ -212,6 +211,7 @@ class MultiCurl {
 		$this->worker[(int) $ch] = array("operation" => $operation, "data" => $data, "callback" => $callback);
 		$this->operation[$operation]["active_worker"][(int) $ch] = true;
 		$this->status = curl_multi_exec($this->mh, $this->active);
+		return true;
 	}
 
 	public function KillWorker () {
