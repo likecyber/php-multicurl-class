@@ -9,13 +9,15 @@
  * @copyright Copyright (c) 2018-2020
  * @license   https://creativecommons.org/licenses/by/4.0/ Attribution 4.0 International (CC BY 4.0)
  * @link      https://github.com/likecyber/php-multicurl-class
- * @version   1.3.1
+ * @version   1.3.2
 **/
 
 class MultiCurl {
 	private $max_worker = 0;
 	private $multi_options = array();
-	private $curl_options = array();
+	private $curl_options = array(
+		CURLOPT_RETURNTRANSFER => true
+	);
 
 	private $operation = array();
 	private $queue = array();
@@ -61,7 +63,7 @@ class MultiCurl {
 		$default_options = array(
 			CURLOPT_RETURNTRANSFER => true
 		);
-		$this->curl_options = $default_options + $curl_options;
+		$this->curl_options = $curl_options + $default_options;
 		return true;
 	}
 
